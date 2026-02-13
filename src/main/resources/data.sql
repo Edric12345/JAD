@@ -13,14 +13,6 @@ VALUES
 ON CONFLICT (email) DO NOTHING;
 
 -- caregivers
-INSERT INTO caregivers (name, qualifications, image_path, availability_status) 
-VALUES
-('Alicia Tan','Diploma in Nursing, 5 years elderly care experience','images/caregivers/alicia_tan.jpg','Available'),
-('Mohamed Firdaus','Certified Caregiver (WSQ), First Aid Certified','images/caregivers/mohamed_firdaus.jpg','Unavailable'),
-('Grace Lim','Bachelor of Nursing, Pediatric Care Specialist','images/caregivers/grace_lim.jpg','Available'),
-('Raj Kumar','Elderly Care Specialist, CPR & AED Certified','images/caregivers/raj_kumar.jpg','On Leave'),
-('Nur Aisyah','Diploma in Healthcare Management, Dementia Care Trained','images/caregivers/nur_aisyah.jpg','Available')
-ON CONFLICT DO NOTHING;
 
 -- service_category
 INSERT INTO service_category (category_name, description) 
@@ -44,3 +36,4 @@ VALUES
 ((SELECT id FROM service_category WHERE category_name='Mobility & Household Support'),'Home Cleaning Support','General cleaning for elderly homes.',55,'images/service8.png',NULL),
 ((SELECT id FROM service_category WHERE category_name='Mobility & Household Support'),'Transport to Appointments','Escort to clinics/hospitals.',90,'images/service9.png',NULL)
 ON CONFLICT DO NOTHING;
+
