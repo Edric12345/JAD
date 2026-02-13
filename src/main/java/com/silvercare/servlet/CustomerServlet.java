@@ -77,6 +77,78 @@ public class CustomerServlet extends HttpServlet {
         }
     }
 
+        private void handleRegister(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    ensureBeansInitialized();
+    if (customerRepo == null) {
+        request.setAttribute("error", "Service temporarily unavailable. Please try again later.");
+        try {
+            request.getRequestDispatcher("/WEB-INF/jsp/public/register.jsp").forward(request, response);
+        } catch (ServletException se) {
+            logger.error("Failed to forward to register page: {}", se.getMessage(), se);
+            response.sendRedirect(request.getContextPath() + "/errorHandler");
+        }
+        return;
+    }
+
+    String name = request.getParameter("name");
+    String email = request.getParameter("email");
+    String password = request.getParameter("password");
+    String phone = request.getParameter("phone");
+    String address = request.getParameter("address");
+
+    if (name == null || email == null || password == null || name.isBlank() || email.isBlank() || password.isBlank()) {
+        request.setAttribute("error", "Name, email, and password are required");
+        request.setAttribute("savedName", name);
+        request.setAttribute("savedEmail", email);
+        try {
+            request.getRequestDispatcher("/WEB-INF/jsp/public/register.jsp").forward(request, response);
+        } catch (ServletException se) {
+            logger.error("Failed to forward to register page: {}", se.getMessage(), se);
+            response.sendRedirect(request.getContextPath() + "/customer/register");
+        }
+        return;
+    }
+
+    try {
+        // Check if email already exists
+        if (customerRepo.findByEmail(email).isPresent()) {
+            request.setAttribute("error", "Email already registered");
+            request.setAttribute("savedName", name);
+            request.setAttribute("savedEmail", email);
+            request.getRequestDispatcher("/WEB-INF/jsp/public/register.jsp").forward(request, response);
+            return;
+        }
+
+        // Create new customer
+        Customer customer = new Customer();
+        customer.setName(name);
+        customer.setEmail(email);
+        customer.setPassword(password); // optionally hash this if your repo expects plain vs hashed
+        customer.setPhone(phone);
+        customer.setAddress(address);
+        customer.setCreated_at(LocalDateTime.now());
+
+        customerRepo.save(customer);
+
+        // Auto-login after registration
+        HttpSession session = request.getSession();
+        session.setAttribute("customer_id", customer.getId());
+        session.setAttribute("customer_name", customer.getName());
+
+        session.setAttribute("msg", "Registration successful! Welcome, " + customer.getName());
+        response.sendRedirect(request.getContextPath() + "/customer/profile");
+    } catch (Exception e) {
+        logger.error("Error during registration", e);
+        request.setAttribute("error", "Failed to register: " + e.getMessage());
+        try {
+            request.getRequestDispatcher("/WEB-INF/jsp/public/register.jsp").forward(request, response);
+        } catch (ServletException se) {
+            logger.error("Failed to forward to register page after exception: {}", se.getMessage(), se);
+            response.sendRedirect(request.getContextPath() + "/customer/register");
+        }
+    }
+}
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ensureBeansInitialized();
@@ -168,7 +240,9 @@ public class CustomerServlet extends HttpServlet {
 
         if (path.equals("/customer/login")) {
             handleLogin(request, response);
-        } else if (path.startsWith("/customer/add-to-cart")) {
+        }else if (path.equals("/customer/register")) {
+            handleRegister(request, response);
+        }else if (path.startsWith("/customer/add-to-cart")) {
             handleAddToCart(request, response);
         } else if (path.equals("/customer/update-profile")) {
             handleUpdateProfile(request, response);
@@ -188,7 +262,7 @@ public class CustomerServlet extends HttpServlet {
             handlePaySingleBooking(request, response);
         } else if (path.startsWith("/customer/book-service")) {
             handleProcessBookService(request, response);
-        } else {
+        }else {
             response.sendError(404);
         }
     }
@@ -212,6 +286,8 @@ public class CustomerServlet extends HttpServlet {
                 return;
             }
         }
+            
+        
 
         String email = request.getParameter("email");
         String pass = request.getParameter("password");
