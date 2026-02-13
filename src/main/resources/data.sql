@@ -4,12 +4,12 @@ VALUES ('admin', 'admin123')
 ON CONFLICT (username) DO NOTHING;
 
 -- customers
-INSERT INTO customers (name, email, password, phone, address, created_at, care_preferences, emergency_contact, medical_notes) 
+INSERT INTO customers (name, email, password, phone, address, care_preferences, emergency_contact, medical_notes) 
 VALUES
-('Alice Tan','alice@example.com','alice123','91234561','123 Clementi Ave','2025-11-25 15:56:26',NULL,NULL,NULL),
-('John Lim','john@example.com','john123','98765432','456 Jurong West','2025-11-25 15:56:26',NULL,NULL,NULL),
-('Mary Lee','mary@example.com','mary123','90011223','789 Bukit Batok','2025-11-25 15:56:26',NULL,NULL,NULL),
-('123','123@gmail.com','123','123','123','2026-01-26 10:24:02','No baths after 10 pm ','88635767','Allergic to milk and water')
+('Alice Tan','alice@example.com','alice123','91234561','123 Clementi Ave',NULL,NULL,NULL),
+('John Lim','john@example.com','john123','98765432','456 Jurong West',NULL,NULL,NULL),
+('Mary Lee','mary@example.com','mary123','90011223','789 Bukit Batok',NULL,NULL,NULL),
+('123','123@gmail.com','123','123','123','No baths after 10 pm ','88635767','Allergic to milk and water')
 ON CONFLICT (email) DO NOTHING;
 
 -- caregivers
@@ -36,4 +36,5 @@ VALUES
 ((SELECT id FROM service_category WHERE category_name='Mobility & Household Support'),'Home Cleaning Support','General cleaning for elderly homes.',55,'images/service8.png',NULL),
 ((SELECT id FROM service_category WHERE category_name='Mobility & Household Support'),'Transport to Appointments','Escort to clinics/hospitals.',90,'images/service9.png',NULL)
 ON CONFLICT DO NOTHING;
+
 
